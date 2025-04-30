@@ -1,0 +1,10 @@
+select distinct b.student_id user_id, b.email_address user_email,-- a.is_active, a.assignment_number, a.primary_flag, 
+c.subject_cd content_domain,c.offering_year_cd as year,c.offering_session_cd as session
+from edw_300_presentation_layer.f_student_load_hist a,
+edw_300_presentation_layer.d_student b,
+edw_300_presentation_layer.d_subject_offering c
+where a.d_student_sk = b.d_student_sk
+and a.d_subject_offering_sk = c.d_subject_offering_sk
+and c.subject_cd = '22108' and c.offering_year_cd = '2025'
+and c.offering_session_cd = 'AUT' and c.offering_campus_cd = 'U'
+and a.d_date_sk = replace(trunc(sysdate)-1,'-','');
