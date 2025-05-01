@@ -1,0 +1,25 @@
+SELECT DISTINCT
+b.staff_no user_id, b.email_address user_email,-- a.is_active, a.assignment_number, a.primary_flag, 
+'SalesforceTesting' content_domain,'ITU' as year,'Staff' as session--c.org_structure_level8, c.org_structure_level8_name--, c.*--,
+--c.bi_level4_name, c.bi_level4_short_name, c.*
+ 
+FROM
+uts_edw.edw_300_presentation_layer.f_hr_assignments  a,
+uts_edw.edw_300_presentation_layer.d_staff b,
+uts_edw.edw_300_presentation_layer.d_all_org_structure_hr c
+where a.staff_sk = b.staff_sk
+and   a.org_structure_hr_sk = c.org_unit_hr_sk 
+and   a.is_active = 'Y'
+and a.primary_flag = 'Y'
+and b.email_address in ('Miguel.Monroy@uts.edu.au', 
+'Vinod.Venkat@uts.edu.au',  --
+'Balaji.Sundar@uts.edu.au', 
+'Pavitra.Matavala@uts.edu.au',  
+'Tabitha.Diaz-Stamatiades@uts.edu.au', --
+'Tushar.Anandani@uts.edu.au',  
+'Dixie.Fu@uts.edu.au', 
+'Johnny.Abulikemu@uts.edu.au', --
+'Preeti.Preeti@uts.edu.au', 
+'Santhiya.Venkatesan@uts.edu.au'
+ )
+;
