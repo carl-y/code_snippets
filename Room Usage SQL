@@ -1,0 +1,43 @@
+    select outcome,count(*) from edw_300_presentation_layer.f_fmg_room_usage 
+    where actual_count = 0 group by 1 ;
+    /* NoShow	4840300
+EarlyFinish	818429
+total of 16,000,000 */
+
+      select * from edw_300_presentation_layer.f_fmg_room_usage 
+    limit 10;
+
+with a as (
+     select --extract(year from used_date),
+     faculty,--dept_org_name,--activity_type,
+     subject_code,activity_type,sum(datediff(h,booked_start_time,booked_end_time)) hrs from edw_300_presentation_layer.f_fmg_room_usage 
+     where outcome in ('NoShow') and subject_code <> 'N/A'
+     and extract(year from used_date) in (2025)
+     group by 1,2,3 order by 4 desc limit 100
+), b as (select  subject_cd,subject_coordinator_staff_email,row_number() over (partition by subject_cd ) rn from edw_300_presentation_layer.d_subject_coordinator 
+    where  subject_coordinator_effct_end > sysdate )
+select b.subject_coordinator_staff_email,a.* from a, b
+where a.subject_code = b.subject_cd
+and b.rn = 1
+order by hrs desc
+    ;
+
+
+    with a as (
+     select --extract(year from used_date),
+     faculty,--dept_org_name,--activity_type,
+     room_name,
+     subject_code,activity_type,sum((substring(Booked_end_time::varchar,12,2)*60)+substring(Booked_end_time::varchar,15,2)::numeric
+-((substring(used_period,1,2)*60) + substring(used_period,4,2)::numeric) )/60 hrs,
+count(*) occurences
+     from edw_300_presentation_layer.f_fmg_room_usage 
+     where outcome in ('EarlyFinish') and subject_code <> 'N/A'
+     and extract(year from used_date) in (2025)
+     group by 1,2,3,4 order by 5 desc limit 100
+), b as (select  subject_cd,subject_coordinator_staff_email,row_number() over (partition by subject_cd ) rn from edw_300_presentation_layer.d_subject_coordinator 
+    where  subject_coordinator_effct_end > sysdate )
+select b.subject_coordinator_staff_email,a.* from a, b
+where a.subject_code = b.subject_cd
+and b.rn = 1
+order by hrs desc
+    ;
