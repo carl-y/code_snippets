@@ -41,3 +41,21 @@ where a.subject_code = b.subject_cd
 and b.rn = 1
 order by hrs desc
     ;
+
+
+    with a as (
+     select --extract(year from used_date),
+     faculty,--dept_org_name,--activity_type,
+     room_name,
+     subject_code,activity_type,Booked_end_time, count(*) cnt
+     from edw_300_presentation_layer.f_fmg_room_usage 
+     where outcome in ('EarlyFinish') and subject_code <> 'N/A'
+     and extract(year from used_date) in (2025)
+     group by 1,2,3,4,5 order by 6 desc limit 100
+), b as (select  subject_cd,subject_coordinator_staff_email,row_number() over (partition by subject_cd ) rn from edw_300_presentation_layer.d_subject_coordinator 
+    where  subject_coordinator_effct_end > sysdate )
+select b.subject_coordinator_staff_email,a.* from a, b
+where a.subject_code = b.subject_cd
+and b.rn = 1
+order by cnt desc
+    ;
