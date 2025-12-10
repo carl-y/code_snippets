@@ -47,15 +47,28 @@ order by hrs desc
      select --extract(year from used_date),
      faculty,--dept_org_name,--activity_type,
      room_name,
-     subject_code,activity_type,Booked_end_time, count(*) cnt
+     subject_code,activity_type,
+     extract(
+      dayofweek from booked_end_time) dow,used_period, count(*) cnt,
+      sum((substring(Booked_end_time::varchar,12,2)*60)+substring(Booked_end_time::varchar,15,2)::numeric
+-((substring(used_period,1,2)*60) + substring(used_period,4,2)::numeric) )/60 total_hrs,
+avg((substring(Booked_end_time::varchar,12,2)*60)+substring(Booked_end_time::varchar,15,2)::numeric
+-((substring(used_period,1,2)*60) + substring(used_period,4,2)::numeric))/60  ag_hrs
      from edw_300_presentation_layer.f_fmg_room_usage 
      where outcome in ('EarlyFinish') and subject_code <> 'N/A'
      and extract(year from used_date) in (2025)
-     group by 1,2,3,4,5 order by 6 desc limit 100
-), b as (select  subject_cd,subject_coordinator_staff_email,row_number() over (partition by subject_cd ) rn from edw_300_presentation_layer.d_subject_coordinator 
+     group by 1,2,3,4,5,6 order by 7 desc limit 100
+), 
+b as (select  subject_cd,subject_coordinator_staff_email,row_number() over (partition by subject_cd ) rn from edw_300_presentation_layer.d_subject_coordinator 
     where  subject_coordinator_effct_end > sysdate )
-select b.subject_coordinator_staff_email,a.* from a, b
+select b.subject_coordinator_staff_email,a.faculty,
+a.room_name, a. subject_code,a.activity_type,
+case when a.dow=1 then 'Monday' when a.dow = 2 then 'Tuesday'
+when a.dow=3 then 'Wednesday' when a.dow= 4 then 'Thursday'
+when a.dow = 5 then 'Friday' when a.dow= subject_code then 'Saturday' else 'Sunday' end,
+a.used_period,a.cnt,a.total_hrs,a.ag_hrs
+ from a, b
 where a.subject_code = b.subject_cd
 and b.rn = 1
-order by cnt desc
+order by cnt desc limit 50
     ;
