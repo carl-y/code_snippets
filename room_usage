@@ -1,0 +1,60 @@
+SELECT 'SUM' as session,building_code,primary_room_type_description,outcome,
+mns,sum(mns) over (partition by building_code,primary_room_type_description) totmns,
+trunc((mns::decimal/sum(mns) over (partition by building_code,primary_room_type_description)::decimal)*100,2) pct
+from (
+    select building_code,primary_room_type_description,outcome, Sum(mns) mns
+ from (    select building_code,primary_room_type_description,outcome, 30 mns--case when outcome = 'NoShow' then 'NoShow' else 'Used' end outcome,
+    --sum(datediff(hours,booked_start_time,booked_end_time)) 
+    from  edw_300_presentation_layer.f_fmg_room_usage a,
+    uts_edw.edw_300_presentation_layer.f_fmg_archibus_room b
+    where a.room_name = b.building_code || '.' || b.room_code
+      and  subject_code <> 'N/A' 
+      and 
+      extract(year from booked_start_time) in (2025) and class like '%_SUM_%'
+      --and room_name like 'CB02%'
+      --and room_name = 'CB02.06.150' and used_date ='2025-02-03 00:00:00' 
+      --and activity_type = 'Lecture'
+    --group by 1,2
+    )
+    group by 1,2,3)
+    UNION 
+    SELECT 'SPR',building_code,primary_room_type_description,outcome,
+mns,sum(mns) over (partition by building_code,primary_room_type_description) totmns,
+trunc((mns::decimal/sum(mns) over (partition by building_code,primary_room_type_description)::decimal)*100,2) pct
+from (
+    select building_code,primary_room_type_description,outcome, Sum(mns) mns
+ from (    select building_code,primary_room_type_description,outcome, 30 mns--case when outcome = 'NoShow' then 'NoShow' else 'Used' end outcome,
+    --sum(datediff(hours,booked_start_time,booked_end_time)) 
+    from  edw_300_presentation_layer.f_fmg_room_usage a,
+    uts_edw.edw_300_presentation_layer.f_fmg_archibus_room b
+    where a.room_name = b.building_code || '.' || b.room_code
+      and  subject_code <> 'N/A' 
+      and 
+      extract(year from booked_start_time) in (2025) and class like '%_SPR_%'
+      --and room_name like 'CB02%'
+      --and room_name = 'CB02.06.150' and used_date ='2025-02-03 00:00:00' 
+      --and activity_type = 'Lecture'
+    --group by 1,2
+    )
+    group by 1,2,3)
+    UNION 
+    SELECT 'AUT',building_code,primary_room_type_description,outcome,
+mns,sum(mns) over (partition by building_code,primary_room_type_description) totmns,
+trunc((mns::decimal/sum(mns) over (partition by building_code,primary_room_type_description)::decimal)*100,2) pct
+from (
+    select building_code,primary_room_type_description,outcome, Sum(mns) mns
+ from (    select building_code,primary_room_type_description,outcome, 30 mns--case when outcome = 'NoShow' then 'NoShow' else 'Used' end outcome,
+    --sum(datediff(hours,booked_start_time,booked_end_time)) 
+    from  edw_300_presentation_layer.f_fmg_room_usage a,
+    uts_edw.edw_300_presentation_layer.f_fmg_archibus_room b
+    where a.room_name = b.building_code || '.' || b.room_code
+      and  subject_code <> 'N/A' 
+      and 
+      extract(year from booked_start_time) in (2025) and class like '%_AUT_%'
+      --and room_name like 'CB02%'
+      --and room_name = 'CB02.06.150' and used_date ='2025-02-03 00:00:00' 
+      --and activity_type = 'Lecture'
+    --group by 1,2
+    )
+    group by 1,2,3)
+    order by 1,2,3,4;
