@@ -1,0 +1,62 @@
+NO SHOW FOR ALL FACULTIES with PCT by aggregate of all faculties
+
+ select * from (
+    SELECT 'AUT' as session,faculty,building_code,primary_room_type_description,outcome,
+mns,sum(mns) over (partition by building_code,primary_room_type_description) totmns,
+trunc((mns::decimal/sum(mns) over (partition by building_code,primary_room_type_description)::decimal)*100,2) pct
+from (
+    select building_code,faculty,primary_room_type_description,outcome, Sum(mns) mns
+ from (    select building_code,a.faculty,primary_room_type_description,outcome, 30 mns--case when outcome = 'NoShow' then 'NoShow' else 'Used' end outcome,
+     from  edw_300_presentation_layer.f_fmg_room_usage a,
+    uts_edw.edw_300_presentation_layer.f_fmg_archibus_room b
+    where a.room_name = b.building_code || '.' || b.room_code
+      and  subject_code <> 'N/A' 
+      and 
+      extract(year from booked_start_time) in (2025) and class like '%_AUT_%'
+      and primary_room_type_description = 'General Teaching'
+    )
+    group by 1,2,3,4)
+    ) where outcome = 'NoShow'
+    order by 3,8 desc
+    ;
+
+NO SHOW FOR ALL FACULTIES with PCT PER FACULTY CONTRIBUTION
+   select * from (
+    SELECT 'AUT' as session,faculty,building_code,primary_room_type_description,outcome,
+mns,sum(mns) over (partition by building_code,faculty,primary_room_type_description) totmns,
+trunc((mns::decimal/sum(mns) over (partition by building_code,faculty,primary_room_type_description)::decimal)*100,2) pct
+from (
+    select building_code,faculty,primary_room_type_description,outcome, Sum(mns) mns
+ from (    select building_code,a.faculty,primary_room_type_description,outcome, 30 mns--case when outcome = 'NoShow' then 'NoShow' else 'Used' end outcome,
+     from  edw_300_presentation_layer.f_fmg_room_usage a,
+    uts_edw.edw_300_presentation_layer.f_fmg_archibus_room b
+    where a.room_name = b.building_code || '.' || b.room_code
+      and  subject_code <> 'N/A' 
+      and 
+      extract(year from booked_start_time) in (2025) and class like '%_AUT_%'
+      and primary_room_type_description = 'General Teaching'
+    )
+    group by 1,2,3,4)
+    ) where outcome = 'NoShow'
+    order by 3,8 desc
+    ;
+/**** All outcomes by faculty ****/
+
+SELECT 'AUT' as session,faculty,--building_code,primary_room_type_description,
+    outcome,
+--mns,sum(mns) over (partition by 'AUT',outcome) totmns,
+trunc((mns::decimal/sum(mns) over (partition by 'AUT')::decimal)*100,2) pct
+from ( select faculty,outcome, Sum(mns) mns
+ from (    select building_code,a.faculty,primary_room_type_description,outcome, 30 mns--case when outcome = 'NoShow' then 'NoShow' else 'Used' end outcome,
+     from  edw_300_presentation_layer.f_fmg_room_usage a,
+    uts_edw.edw_300_presentation_layer.f_fmg_archibus_room b
+    where a.room_name = b.building_code || '.' || b.room_code
+      and  subject_code <> 'N/A' 
+      and 
+      extract(year from booked_start_time) in (2025) and class like '%_AUT_%'
+      and primary_room_type_description = 'General Teaching'
+    )
+    group by faculty,outcome)
+    order by 3,4 desc
+  
+     ;
