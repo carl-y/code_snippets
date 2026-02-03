@@ -42,3 +42,19 @@ avg((substring(Booked_end_time::varchar,12,2)*60)+substring(Booked_end_time::var
       and primary_room_type_description = 'General Teaching'
      and outcome in ('EarlyFinish') 
      group by 1,2,3,4,5,6 order by 7 desc limit 100
+
+
+Hi all
+
+I have done some further analytics subsequent to our discussion on January 22nd.
+
+The data attached is analysis on General Teaching AUT Session 2025. Each dataset is limited to the highest 100 records.
+
+The NoShow data is aggregated at two levels, one by Faculty and Room, and one at a deeper level of granularity.
+
+The EarlyFinish data has tried to determine a pattern of day-of-the-week and "start_time" of the early finish - the frequency of occurrence for the session is included as well as total hours for the session and average early finish hours.
+
+Feel free to ask for more information - I am away next week, returning February 16th and happy to do more analysis for you
+
+Regards
+Carl
