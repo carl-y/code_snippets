@@ -1,0 +1,44 @@
+  select --extract(year from used_date),
+     a.faculty,--dept_org_name,--activity_type,
+     --subject_code,
+     a.room_name--,activity_type
+     ,count(*) * .5 mns 
+     from edw_300_presentation_layer.f_fmg_room_usage a,
+    uts_edw.edw_300_presentation_layer.f_fmg_archibus_room b
+    where a.room_name = b.building_code || '.' || b.room_code
+      and  subject_code <> 'N/A' 
+      and 
+      extract(year from booked_start_time) in (2025) and class like '%_AUT_%'
+      and primary_room_type_description = 'General Teaching'
+     and outcome in ('NoShow') 
+     
+     group by 1,2 order by 3 desc limit 100;
+
+
+
+          select --extract(year from used_date),
+     a.faculty,--dept_org_name,--activity_type,
+     room_name,
+     subject_code,activity_type,
+     case when extract(
+      dayofweek from booked_end_time)=1 then 'Monday' when extract(
+      dayofweek from booked_end_time) = 2 then 'Tuesday'
+when extract(
+      dayofweek from booked_end_time)=3 then 'Wednesday' when extract(
+      dayofweek from booked_end_time)= 4 then 'Thursday'
+when extract(
+      dayofweek from booked_end_time) = 5 then 'Friday' when extract(
+      dayofweek from booked_end_time) = 6 then 'Saturday' else 'Sunday' end
+     ,used_period start_time, count(*) frequency,
+      sum((substring(Booked_end_time::varchar,12,2)*60)+substring(Booked_end_time::varchar,15,2)::numeric
+-((substring(used_period,1,2)*60) + substring(used_period,4,2)::numeric) )/60 total_hrs,
+avg((substring(Booked_end_time::varchar,12,2)*60)+substring(Booked_end_time::varchar,15,2)::numeric
+-((substring(used_period,1,2)*60) + substring(used_period,4,2)::numeric))/60  ag_hrs
+     from edw_300_presentation_layer.f_fmg_room_usage a, uts_edw.edw_300_presentation_layer.f_fmg_archibus_room b
+    where a.room_name = b.building_code || '.' || b.room_code
+      and  subject_code <> 'N/A' 
+      and 
+      extract(year from booked_start_time) in (2025) and class like '%_AUT_%'
+      and primary_room_type_description = 'General Teaching'
+     and outcome in ('EarlyFinish') 
+     group by 1,2,3,4,5,6 order by 7 desc limit 100
