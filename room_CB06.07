@@ -1,0 +1,14 @@
+       select 'AUT' as session,* from edw_300_presentation_layer.f_fmg_room_usage 
+      where room_name like 'CB06.07.%'
+     -- and substring(reverse(room_name),1,3) in ('100','200','300','400','500','600','700','800','010','310','410','510','530') 
+          and (substring(room_name,9,3) = '035' or substring(room_name,9,5) = '01 15')
+          and  used_date >= to_date('2025-02-17','YYYY-MM-DD')
+      and used_date <= to_date('2025-05-16','YYYY-MM-DD')
+      UNION all
+      select 'SPR' as session,* from edw_300_presentation_layer.f_fmg_room_usage 
+      where room_name like 'CB06.07.%'
+     -- and substring(reverse(room_name),1,3) in ('100','200','300','400','500','600','700','800','010','310','410','510','530') 
+      and (substring(room_name,9,3) = '035' or substring(room_name,9,5) = '01 15')
+      and  used_date >= to_date('2025-07-28','YYYY-MM-DD')
+      and used_date <= to_date('2025-10-24','YYYY-MM-DD')
+      order by used_date;
